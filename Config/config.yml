@@ -1,0 +1,31 @@
+---
+# Generate with https://ssl-config.mozilla.org/#server=traefik&version=2.1.2&config=modern&guideline=5.6
+http:
+  middlewares:
+    default-headers:
+      headers:
+        referrerPolicy: no-referrer
+        forceSTSHeader: true
+        stsSeconds: 31536000
+        stsIncludeSubdomains: true
+        stsPreload: true
+        contentTypeNosniff: true
+        browserXssFilter: true
+        customRequestHeaders:
+          X-Forwarded-Proto: https
+        customResponseHeaders:
+          Strict-Transport-Security: "max-age-63072000"
+serversTransport:
+  insecureSkipVerify: true
+tls:
+  options:
+    default:
+      minVersion: VersionTLS13
+  certificates:
+    - certFile: /private/app.crt
+      keyFile: /private/app.key
+  stores:
+    default:
+      defaultCertificate:
+        certFile: /private/app.crt
+        keyFile: /private/app.key

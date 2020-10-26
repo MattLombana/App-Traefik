@@ -1,0 +1,41 @@
+version: '3'
+services:
+  tecnativa:
+    image: tecnativa/docker-socket-proxy:latest
+    container_name: tecnativa
+    hostname: tecnativa
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      CONTAINERS: 1
+      NETWORKS: 1
+      INFO: 1
+      SERVICES: 1
+  traefik:
+    image: traefik:v2.0
+    container_name: traefik
+    hostname: traefik
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8888:8888"
+    volumes:
+      - ../Config/traefik.yml:/etc/traefik/traefik.yml:ro
+      - ../Config/config.yml:/config.yml:ro
+      - ../Data/private:/private
+    labels:
+      - "traefik.enable=true"
+      # HTTP to HTTPS redirection
+      - "traefik.http.routers.http-catchall.rule=HostRegexp(`{any:.+}`)"
+      - "traefik.http.routers.http-catchall.entrypoints=web"
+      - "traefik.http.routers.http-catchall.middlewares=https-redirect"
+      - "traefik.http.middlewares.https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.https-redirect.redirectscheme.permanent=true"
+      # API Configuration
+      - "traefik.http.routers.api.entrypoints=traefik"
+      - "traefik.http.routers.api.rule=Host(`localhost`)"
+      - "traefik.http.routers.api.middlewares=auth"
+      - "traefik.http.routers.api.service=api@internal"
+      - "traefik.http.routers.api.tls=true"
+      - "traefik.http.middlewares.auth.basicAuth.users=admin:$$apr1$$ayf7bpq1$$fiLyHGQp1HDPqBaSbPile."

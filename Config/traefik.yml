@@ -1,0 +1,22 @@
+---
+log:
+  level: ERROR
+api:
+  debug: true
+  dashboard: true
+  # insecure: true
+providers:
+  docker:
+    endpoint: "tcp://tecnativa:2375"
+    watch: true
+    exposedByDefault: false
+  file:
+    filename: /config.yml
+    watch: true
+entryPoints:
+  web:
+    address: ":80"
+  web-secure:
+    address: ":443"
+  traefik:
+    address: ":8888"
